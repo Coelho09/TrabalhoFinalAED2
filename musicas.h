@@ -2,9 +2,7 @@
 #define MUSICAS_H
 
 
-#define MAX_LINE_LEN 2048
-#define MAX_LYRICS_LEN 20000 // Aumentado para guardar a letra inteira
-#define SNIPPET_LEN 100
+
 
 typedef struct musicData{ 
     char autor[50];
@@ -15,7 +13,7 @@ typedef struct musicData{
 
 typedef struct node {
     char palavra[50];
-    musicData dados[100];
+    musicData dados;
     int qtdRepositorio;
     struct node *left;
     struct node *right;
@@ -23,6 +21,8 @@ typedef struct node {
 
 
 Node *criaNo(char* palavra);
+int count_occurrences(char *letra, char *palavra);
+
 
 
 

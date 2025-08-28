@@ -4,6 +4,9 @@
 #include "musicas.h"
 
 
+#define MAX_LINE_LEN 2048
+#define MAX_LYRICS_LEN 20000 // Aumentado para guardar a letra inteira
+#define SNIPPET_LEN 100
 
 
 int count_occurrences(char *letra, char *palavra) {
@@ -17,7 +20,7 @@ int count_occurrences(char *letra, char *palavra) {
 }
 
 // Função principal que processa a busca no arquivo
-void buscar_musica(char *arq, char *palavra) {
+void buscar_musica(char *arq,Node *node) {
     FILE *file = fopen(arq, "r");
     if (file == NULL) {
         perror("Erro ao abrir o arquivo");
@@ -40,7 +43,7 @@ void buscar_musica(char *arq, char *palavra) {
         // Se for uma nova música (ou o fim do arquivo), processa a música anterior
         if (delimiter != NULL || feof(file)) {
             if (music_title[0] != '\0' && palavra_found_in_song) {
-                int total_count = count_occurrences(full_lyrics, palavra);
+                int total_count = count_occurrences(full_lyrics, node->palavra);
                 
                 printf("%s – %s – ", music_title, composer);
                 // Imprime os primeiros 100 caracteres da estrofe
@@ -78,14 +81,14 @@ void buscar_musica(char *arq, char *palavra) {
             strncat(current_stanza, line, sizeof(current_stanza) - strlen(current_stanza) - 1);
 
             // Se a palavra-chave for encontrada e ainda não tivermos uma estrofe guardada
-            if (strstr(line, palavra) != NULL && !palavra_found_in_song) {
+            if (strstr(line, node->palavra) != NULL && !palavra_found_in_song) {
                 palavra_found_in_song = 1;
             }
 
             // Se for uma linha em branco, a estrofe terminou
             if (is_blank_line) {
                  // Se a estrofe continha a palavra-chave e ainda não salvamos uma, salve-a.
-                if (strstr(current_stanza, palavra) != NULL && stanza_with_palavra[0] == '\0') {
+                if (strstr(current_stanza, node->palavra) != NULL && stanza_with_palavra[0] == '\0') {
                     strcpy(stanza_with_palavra, current_stanza);
                     // Remove quebras de linha do snippet para melhor formatação
                     for(int i = 0; stanza_with_palavra[i] != '\0' && i < SNIPPET_LEN + 20; i++) {
@@ -102,7 +105,7 @@ void buscar_musica(char *arq, char *palavra) {
     // Processa a última música do arquivo
     if (music_title[0] != '\0' && palavra_found_in_song) {
         // Se a última estrofe continha a palavra e nenhuma outra foi salva
-        if (strstr(current_stanza, palavra) != NULL && stanza_with_palavra[0] == '\0') {
+        if (strstr(current_stanza, node->palavra) != NULL && stanza_with_palavra[0] == '\0') {
             strcpy(stanza_with_palavra, current_stanza);
             for(int i = 0; stanza_with_palavra[i] != '\0' && i < SNIPPET_LEN + 20; i++) {
                 if(stanza_with_palavra[i] == '\n' || stanza_with_palavra[i] == '\r') {
@@ -110,7 +113,7 @@ void buscar_musica(char *arq, char *palavra) {
                 }
             }
         }
-        int total_count = count_occurrences(full_lyrics, palavra);
+        int total_count = count_occurrences(full_lyrics, node->palavra);
         printf("%s – %s – ", music_title, composer);
         int len = strlen(stanza_with_palavra);
         for (int i = 0; i < len && i < SNIPPET_LEN; i++) {
