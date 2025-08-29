@@ -1,17 +1,62 @@
-#include "arvore_binaria.h"
+#include "binary-tree.h"
 #include <stdlib.h>
 #include <string.h>
 
-NoAB* inserir_na_ab(NoAB* no, EntradaRepositorio nova_entrada) {
-    // Implemente a inserção na árvore binária.
-    // Lembre-se de atualizar os dados se a palavra já existir[cite: 36, 37].
-    // Se a palavra for nova, insira um novo nó.
+
+
+
+ NoAB* newNode(palavra_busca * newNode) {   
+        NoAB* temp = 
+       (NoAB*)malloc(sizeof(NoAB));
+    temp->entrada = *newNode;
+    temp->esquerda = temp->direita = NULL;
+    return temp;
 }
 
-EntradaRepositorio* buscar_na_ab(NoAB* no, const char* palavra) {
-    // Implemente a busca na árvore binária.
-    // Retorne um ponteiro para a entrada encontrada ou NULL.
+NoAB* inserir_na_ab(NoAB* no, palavra_busca *nova_entrada) {
+    
+    NoAB * insert_node = newNode(nova_entrada);
+
+
+    if (no == NULL)
+        return insert_node;
+    
+     
+    if (strcmp(no->entrada.palavra, insert_node->entrada.palavra) == 0){
+        no->entrada = insert_node->entrada;
+    }
+        
+    
+    
+    if (strcmp(no->entrada.palavra, insert_node->entrada.palavra) < 0)
+        no->direita = inserir_na_ab(no->direita, &insert_node->entrada);
+    
+    
+    else
+        no->esquerda = inserir_na_ab(no->esquerda, &insert_node->entrada);
+
+    
+    return no;
 }
+
+
+
+
+palavra_busca* buscar_na_ab(NoAB* no, char* palavra) {
+    
+
+    
+    if (no == NULL || strcmp(no->entrada.palavra, palavra ) == 0)
+        return no;
+
+    
+    if (strcmp(no->entrada.palavra,palavra) < 0)
+        return buscar_na_ab(no->direita, palavra);
+
+    
+    return buscar_na_ab(no->esquerda, palavra);
+}
+
 
 void liberar_ab(NoAB* no) {
     if (no != NULL) {

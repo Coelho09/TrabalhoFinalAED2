@@ -1,11 +1,11 @@
 
 #include "repositorio.h"
 typedef struct NoAB {
-    musicaDados entrada;
+    palavra_busca entrada;
     struct NoAB* esquerda;
     struct NoAB* direita;
 } NoAB;
 
-NoAB* inserir_na_ab(NoAB* no, musicaDados nova_entrada);
-musicaDados* buscar_na_ab(NoAB* no, const char* palavra);
+NoAB* inserir_na_ab(NoAB* no, palavra_busca* nova_entrada);
+palavra_busca* buscar_na_ab(NoAB* no, char* palavra);
 void liberar_ab(NoAB* no);
