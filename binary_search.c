@@ -28,7 +28,11 @@ void inserir_no_vetor(RepositorioVetor *rv, palavra_busca nova_musica){
             else 
             {
                 int pivot =buscar_no_vetor_indice(rv, nova_musica.palavra);
-                rv->vetor[pivot] = nova_musica;
+                if (rv->vetor[pivot].mData.frequencia < nova_musica.mData.frequencia)
+                {
+                    rv->vetor[pivot] = nova_musica;
+                }
+                
             }
     
 

@@ -6,7 +6,7 @@
 #include "repositorio.h"
 #include "binary_search.h"
 #include "binary-tree.h"
-#include "arvore_avl.h"
+#include "avl-tree.h"
 #include "utilidades.h" // Um módulo para funções como 'para_minusculo' e 'limpar_string'
 
 // Funções para a interação com o usuário
@@ -82,7 +82,7 @@ void carregar_arquivos() {
 }
 
 void buscar_palavra() {
-    char palavra_busca[MAX_PALAVRA];
+    char palavra_busca[MAX_LEN_PALAVRA];
     printf("Digite a palavra a ser buscada: ");
     scanf("%s", palavra_busca);
 

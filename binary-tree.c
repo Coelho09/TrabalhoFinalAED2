@@ -23,7 +23,9 @@ NoAB* inserir_na_ab(NoAB* no, palavra_busca *nova_entrada) {
     
      
     if (strcmp(no->entrada.palavra, insert_node->entrada.palavra) == 0){
-        no->entrada = insert_node->entrada;
+        if(no->entrada.mData.frequencia < insert_node->entrada.mData.frequencia){
+            no->entrada = insert_node->entrada;
+        }
     }
         
     
