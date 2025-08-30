@@ -1,64 +1,37 @@
-#include <stdio.h>
+#include "binary-tree.h"
 #include <stdlib.h>
 #include <string.h>
-#include "binary_search.h"
 
-void inicializa_vetor(RepositorioVetor* rv){
-    rv->tamanho = 0;
-    rv->capacidade = 128;
-    rv->vetor = (palavra_busca *) malloc (rv->capacidade * sizeof(palavra_busca));
+NoAB* newNodeAB(palavra_busca *nova_entrada) {
+    NoAB* temp = (NoAB*)malloc(sizeof(NoAB));
+    temp->entrada = *nova_entrada;
+    temp->esquerda = temp->direita = NULL;
+    return temp;
 }
 
-void inserir_no_vetor(RepositorioVetor *rv, palavra_busca * nova_palavra){
-    if (rv->tamanho >= rv->capacidade) {
-        rv->capacidade *= 2;
-        rv->vetor = (palavra_busca *) realloc(rv->vetor, rv->capacidade * sizeof(palavra_busca));
-        if (rv->vetor == NULL) {
-            perror("Falha ao realocar memoria para o vetor");
-            exit(1);
-        }
-    }
-    rv->vetor[rv->tamanho] = *nova_palavra;
-    rv->tamanho++;
+NoAB* inserir_na_ab(NoAB* no, palavra_busca *nova_entrada) {
+    if (no == NULL) return newNodeAB(nova_entrada);
+    int cmp = strcmp(nova_entrada->palavra, no->entrada.palavra);
+    if (cmp < 0) no->esquerda = inserir_na_ab(no->esquerda, nova_entrada);
+    else if (cmp > 0) no->direita = inserir_na_ab(no->direita, nova_entrada);
+    return no;
 }
 
-void shell_sort_vetor(RepositorioVetor  *rv, int vec_size){
-    int i, j, h = 1;
-    palavra_busca aux;
-    if (vec_size <= 1) return;
-    do { h = h * 3 + 1; } while (h < vec_size);
-    do {
-        h /= 3;
-        for (i = h; i < vec_size; i++) {
-            aux = rv->vetor[i];
-            j = i;
-            while (j >= h && strcmp(rv->vetor[j - h].palavra, aux.palavra) > 0) {
-                rv->vetor[j] = rv->vetor[j - h];
-                j -= h;
-            }
-            rv->vetor[j] = aux;
-        }
-    } while (h != 1);
-}
-
-palavra_busca* buscar_no_vetor(RepositorioVetor* rv, char* palavra) {
-    int low = 0;
-    int high = rv->tamanho - 1;
-    while (low <= high) {
-        int mid = low + (high - low) / 2;
-        int cmp = strcmp(rv->vetor[mid].palavra, palavra);
-        if (cmp == 0) return &rv->vetor[mid];
-        if (cmp < 0) low = mid + 1;
-        else high = mid - 1;
+palavra_busca* buscar_na_ab(NoAB* no, char* palavra) {
+    NoAB* atual = no;
+    while (atual != NULL) {
+        int cmp = strcmp(palavra, atual->entrada.palavra);
+        if (cmp == 0) return &(atual->entrada);
+        else if (cmp < 0) atual = atual->esquerda;
+        else atual = atual->direita;
     }
     return NULL;
 }
 
-void liberar_vetor(RepositorioVetor* rv) {
-    if (rv->vetor != NULL) {
-        free(rv->vetor);
+void liberar_ab(NoAB* no) {
+    if (no != NULL) {
+        liberar_ab(no->esquerda);
+        liberar_ab(no->direita);
+        free(no);
     }
-    rv->vetor = NULL;
-    rv->tamanho = 0;
-    rv->capacidade = 0;
 }
