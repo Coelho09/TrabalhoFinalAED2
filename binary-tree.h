@@ -1,6 +1,7 @@
 #ifndef BINARY_TREE_H
 #define BINARY_TREE_H
 #include "repositorio.h"
+
 typedef struct NoAB {
     palavra_busca entrada;
     struct NoAB* esquerda;
