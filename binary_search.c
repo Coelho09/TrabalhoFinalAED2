@@ -6,67 +6,8 @@
 void inicializa_vetor(RepositorioVetor* rv){
     rv->tamanho=0;
     rv->capacidade = 100;
-    rv->vetor = (RepositorioVetor *) malloc (rv->capacidade * sizeof(RepositorioVetor));
+    rv->vetor = (palavra_busca *) malloc (rv->capacidade * sizeof(palavra_busca));
 
-
-}
-
-
-void inserir_no_vetor(RepositorioVetor *rv, palavra_busca nova_musica){
-    if (rv->tamanho != 0){
-        if (rv->tamanho >= rv->capacidade)
-        {
-             rv->vetor = (RepositorioVetor *) realloc (rv, sizeof(RepositorioVetor) * (rv->capacidade + 1));
-        }
-        
-            shell_sort_vetor(rv, rv->tamanho);
-            if(buscar_no_vetor_indice(rv, nova_musica.palavra) == -1)
-            {
-                rv->vetor[rv->tamanho] = nova_musica;
-                rv->tamanho++;
-            } 
-            else 
-            {
-                int pivot =buscar_no_vetor_indice(rv, nova_musica.palavra);
-                if (rv->vetor[pivot].mData.frequencia < nova_musica.mData.frequencia)
-                {
-                    rv->vetor[pivot] = nova_musica;
-                }
-                
-            }
-    
-
-
-    } else {
-        rv->vetor[rv->tamanho] = nova_musica;
-        rv->tamanho++;
-    }
-
-}
-
-
-palavra_busca* buscar_no_vetor(RepositorioVetor* rv, char* palavra) {
-  
-    int low = 0;
-    int high = rv->tamanho - 1 ;
-    while (low <= high) {
-        int mid = low + (high - low) / 2;
-
-        
-        if (strcmp(rv->vetor[mid].palavra, palavra) ==0)
-            return &rv->vetor[mid];
-
-        
-        if (strcmp(rv->vetor[mid].palavra, palavra ) < 0)
-            low = mid + 1;
-
-        
-        else
-            high = mid - 1;
-    }
-
-    
-    return NULL;
 
 }
 
@@ -99,8 +40,37 @@ int buscar_no_vetor_indice(RepositorioVetor* rv, char* palavra) {
 
 
 
+void inserir_no_vetor(RepositorioVetor *rv, palavra_busca * nova_musica){
+    if (rv->tamanho != 0){
+        if (rv->tamanho >= rv->capacidade)
+        {
+             rv->vetor = (palavra_busca *) realloc (rv, sizeof(palavra_busca) * (rv->capacidade + 1));
+        }
+        
+            shell_sort_vetor(rv, rv->tamanho);
+            if(buscar_no_vetor_indice(rv, nova_musica->palavra) == -1)
+            {
+                rv->vetor[rv->tamanho] = *nova_musica;
+                rv->tamanho++;
+            } 
+            else 
+            {
+                int pivot =buscar_no_vetor_indice(rv, nova_musica->palavra);
+                if (rv->vetor[pivot].mData.frequencia < nova_musica->mData.frequencia)
+                {
+                    rv->vetor[pivot] = *nova_musica;
+                }
+                
+            }
+    
 
 
+    } else {
+        rv->vetor[rv->tamanho] = *nova_musica;
+        rv->tamanho++;
+    }
+
+}
 
 
 void shell_sort_vetor(RepositorioVetor  *rv, int vec_size){
@@ -122,6 +92,34 @@ void shell_sort_vetor(RepositorioVetor  *rv, int vec_size){
     } while(h !=1);
 
 }
+
+
+palavra_busca* buscar_no_vetor(RepositorioVetor* rv, char* palavra) {
+  
+    int low = 0;
+    int high = rv->tamanho - 1 ;
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+
+        
+        if (strcmp(rv->vetor[mid].palavra, palavra) ==0)
+            return &rv->vetor[mid];
+
+        
+        if (strcmp(rv->vetor[mid].palavra, palavra ) < 0)
+            low = mid + 1;
+
+        
+        else
+            high = mid - 1;
+    }
+
+    
+    return NULL;
+
+}
+
+
 
 
 

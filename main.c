@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h> // Para medir o tempo de execução [cite: 35, 39]
+#include <time.h> 
 
 #include "repositorio.h"
 #include "binary_search.h"
 #include "binary-tree.h"
 #include "avl-tree.h"
-#include "utilidades.h" // Um módulo para funções como 'para_minusculo' e 'limpar_string'
+#include "utils.h"
+#include "processa_arquivos.h" // onde está processar_arquivo
 
 // Funções para a interação com o usuário
 void menu_principal();
@@ -15,7 +16,7 @@ void carregar_arquivos();
 void buscar_palavra();
 void buscar_por_frequencia();
 
-// Estruturas globais (ou passadas por parâmetro)
+// Estruturas globais
 RepositorioVetor repo_vetor;
 NoAB* raiz_ab = NULL;
 NoAVL* raiz_avl = NULL;
@@ -28,7 +29,7 @@ int main() {
     do {
         menu_principal();
         scanf("%d", &opcao);
-        getchar(); // Limpar o buffer
+        getchar(); // limpa o buffer
 
         switch (opcao) {
             case 1:
@@ -51,7 +52,7 @@ int main() {
     liberar_vetor(&repo_vetor);
     liberar_ab(raiz_ab);
     liberar_avl(raiz_avl);
-    liberar_avl(raiz_avl_frequencia); // Libera a árvore de frequência
+    liberar_avl(raiz_avl_frequencia);
 
     return 0;
 }
@@ -70,35 +71,104 @@ void carregar_arquivos() {
     printf("Digite o nome do arquivo de musica (.txt): ");
     scanf("%s", nome_arquivo);
 
-    clock_t inicio_vetor = clock();
-    // Processar arquivo e inserir no vetor
-    // ...
-    clock_t fim_vetor = clock();
-    double tempo_vetor = (double)(fim_vetor - inicio_vetor) / CLOCKS_PER_SEC;
-    printf("Tempo para carregar no vetor: %.2f segundos\n", tempo_vetor);
+    int tamanho = 0;
 
-    // O mesmo para as arvores AB e AVL
-    // ...
+    clock_t inicio = clock();
+    palavra_busca* lista = processar_arquivo(nome_arquivo, &tamanho);
+    clock_t fim = clock();
+    double tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
+
+    if (lista == NULL) {
+        printf("Erro ao processar o arquivo!\n");
+        return;
+    }
+
+    // Inserir no vetor
+    for (int i = 0; i < tamanho; i++) {
+        inserir_no_vetor(&repo_vetor, &lista[i]); 
+    }
+
+    // Inserir na árvore binária
+    for (int i = 0; i < tamanho; i++) {
+        raiz_ab = inserir_na_ab(raiz_ab, &lista[i]);
+    }
+
+    // Inserir na AVL
+    for (int i = 0; i < tamanho; i++) {
+        raiz_avl = inserir_na_avl(raiz_avl, &lista[i]);
+    }
+
+    // Inserir na AVL por frequência
+    for (int i = 0; i < tamanho; i++) {
+        raiz_avl_frequencia = inserir_na_avl(raiz_avl_frequencia, &lista[i]);
+    }
+
+    printf("Arquivo carregado com sucesso! Tempo total: %.2f segundos\n", tempo);
+
+    free(lista); // já copiamos os dados para as estruturas
 }
 
 void buscar_palavra() {
-    char palavra_busca[MAX_LEN_PALAVRA];
+    char palavra[MAX_LEN_PALAVRA];
     printf("Digite a palavra a ser buscada: ");
-    scanf("%s", palavra_busca);
+    scanf("%s", palavra);
 
-    // Converte e limpa a palavra antes da busca
-    para_minusculo(palavra_busca);
+    para_minusculo(palavra);
 
-    // Iniciar e parar cronômetros para cada busca
-    // Chamar as funcoes de busca:
-    // buscar_no_vetor(...)
-    // buscar_na_ab(...)
-    // buscar_na_avl(...)
-    
-    // Exibir os resultados para cada busca, juntamente com o tempo de processamento[cite: 39].
+    clock_t inicio, fim;
+    double tempo;
+
+    // Vetor
+    inicio = clock();
+    palavra_busca* resultado_vetor = buscar_no_vetor(&repo_vetor, palavra);
+    fim = clock();
+    tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
+    if (resultado_vetor) {
+        printf("[VETOR] Palavra encontrada: %s | Freq: %d | Tempo: %.6f s\n",
+               resultado_vetor->palavra, resultado_vetor->freqTotal, tempo);
+    } else {
+        printf("[VETOR] Palavra nao encontrada (%.6f s)\n", tempo);
+    }
+
+    // Árvore Binária
+    inicio = clock();
+    palavra_busca* resultado_ab = buscar_na_ab(raiz_ab, palavra);
+    fim = clock();
+    tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
+    if (resultado_ab) {
+        printf("[AB] Palavra encontrada: %s | Freq: %d | Tempo: %.6f s\n",
+               resultado_ab->palavra, resultado_ab->freqTotal, tempo);
+    } else {
+        printf("[AB] Palavra nao encontrada (%.6f s)\n", tempo);
+    }
+
+    // AVL
+    inicio = clock();
+    palavra_busca* resultado_avl = buscar_na_avl(raiz_avl, palavra);
+    fim = clock();
+    tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
+    if (resultado_avl) {
+        printf("[AVL] Palavra encontrada: %s | Freq: %d | Tempo: %.6f s\n",
+               resultado_avl->palavra, resultado_avl->freqTotal, tempo);
+    } else {
+        printf("[AVL] Palavra nao encontrada (%.6f s)\n", tempo);
+    }
 }
 
 void buscar_por_frequencia() {
-    // Implemente a construção e busca na árvore AVL por frequência, conforme o requisito[cite: 40].
-    // A árvore deve ser construída uma vez a partir dos dados existentes.
+    int freq;
+    printf("Digite a frequencia a ser buscada: ");
+    scanf("%d", &freq);
+
+    clock_t inicio = clock();
+    palavra_busca* resultado = buscar_na_avl_por_frequencia(raiz_avl_frequencia, freq);
+    clock_t fim = clock();
+    double tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
+
+    if (resultado) {
+        printf("Palavra com frequencia %d encontrada: %s | Tempo: %.6f s\n",
+               freq, resultado->palavra, tempo);
+    } else {
+        printf("Nenhuma palavra encontrada com frequencia %d (%.6f s)\n", freq, tempo);
+    }
 }

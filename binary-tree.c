@@ -48,15 +48,25 @@ palavra_busca* buscar_na_ab(NoAB* no, char* palavra) {
     
 
     
-    if (no == NULL || strcmp(no->entrada.palavra, palavra ) == 0)
-        return no;
-
+      NoAB* curr = no;
     
-    if (strcmp(no->entrada.palavra,palavra) < 0)
-        return buscar_na_ab(no->direita, palavra);
-
+    while (curr != NULL) {
+        
+        
+        if (strcmp(curr->entrada.palavra, palavra) == 0)
+            return &(curr->entrada);
+            
+         //curr->data < x
+        else if (strcmp(curr->entrada.palavra, palavra) < 0) 
+            curr = curr->direita;
+            
+        // Search in left subtree
+        else
+            curr = curr->esquerda;
+    }
     
-    return buscar_na_ab(no->esquerda, palavra);
+    
+    return NULL;
 }
 
 
