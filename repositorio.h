@@ -1,3 +1,7 @@
+#ifndef REPOSITORIO_H
+#define REPOSITORIO_H
+
+
 #define MAX_LEN_PALAVRA 100
 #define MAX_MUSICA_NOME 100
 #define MAX_COMPOSITOR_NOME 100
@@ -21,3 +25,4 @@ typedef struct palavra_busca
 
 
 
+#endif 

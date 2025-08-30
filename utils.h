@@ -6,5 +6,6 @@ void para_minusculo(char *str);
 
 // Remove caracteres de pontuação e espaços de uma string
 void limpar_string(char *str);
+void trim(char* str);
 
 #endif

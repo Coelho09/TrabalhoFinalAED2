@@ -5,7 +5,7 @@
 
 
 
- NoAB* newNode(palavra_busca * newNode) {   
+ NoAB* newNodeAB(palavra_busca * newNode) {   
         NoAB* temp = 
        (NoAB*)malloc(sizeof(NoAB));
     temp->entrada = *newNode;
@@ -15,7 +15,7 @@
 
 NoAB* inserir_na_ab(NoAB* no, palavra_busca *nova_entrada) {
     
-    NoAB * insert_node = newNode(nova_entrada);
+    NoAB * insert_node = newNodeAB(nova_entrada);
 
 
     if (no == NULL)

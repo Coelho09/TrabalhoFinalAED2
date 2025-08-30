@@ -43,3 +43,27 @@ void limpar_string(char *str) {
 
     para_minusculo(str);
 }
+
+
+
+void trim(char* str) {
+    if (str == NULL) {
+        return;
+    }
+
+    int inicio = 0;
+    int fim = strlen(str) - 1;
+
+    while (fim >= 0 && isspace((unsigned char)str[fim])) {
+        fim--;
+    }
+    str[fim + 1] = '\0';
+
+    while (isspace((unsigned char)str[inicio])) {
+        inicio++;
+    }
+
+    if (inicio > 0) {
+        memmove(str, str + inicio, fim - inicio + 2);
+    }
+}

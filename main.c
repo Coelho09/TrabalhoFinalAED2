@@ -23,7 +23,7 @@ NoAVL* raiz_avl = NULL;
 NoAVL* raiz_avl_frequencia = NULL;
 
 int main() {
-    inicializar_vetor(&repo_vetor);
+    inicializa_vetor(&repo_vetor);
 
     int opcao;
     do {
@@ -42,7 +42,7 @@ int main() {
                 buscar_por_frequencia();
                 break;
             case 0:
-                printf("Saindo...\n");
+                printf("Fim!\n");
                 break;
             default:
                 printf("Opcao invalida. Tente novamente.\n");
@@ -74,7 +74,7 @@ void carregar_arquivos() {
     int tamanho = 0;
 
     clock_t inicio = clock();
-    palavra_busca* lista = processar_arquivo(nome_arquivo, &tamanho);
+    palavra_busca* lista = processa_arquivo(nome_arquivo, &tamanho);
     clock_t fim = clock();
     double tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
 
