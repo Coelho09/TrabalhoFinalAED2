@@ -12,7 +12,7 @@
 #include "utils.h"
 #include "processa_arquivos.h"
 
-// Define o número de vezes que cada busca será repetida para obter uma medição de tempo precisa.
+
 #define NUM_REPETICOES_BUSCA 10000
 
 void menu_principal();
