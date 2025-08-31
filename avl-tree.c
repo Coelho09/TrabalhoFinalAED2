@@ -71,7 +71,7 @@ NoAVL* inserir_na_avl(NoAVL* node, palavra_busca *nova_entrada) {
 NoAVL* inserir_na_avl_freq(NoAVL* node, palavra_busca *nova_entrada) {
     if (node == NULL) return newNodeAVL(nova_entrada);
     if (nova_entrada->freqTotal < node->entrada.freqTotal) node->esquerda  = inserir_na_avl_freq(node->esquerda, nova_entrada);
-    else if (nova_entrada->freqTotal >= node->entrada.freqTotal) node->direita = inserir_na_avl_freq(node->direita, nova_entrada); // >= para inserir duplicados
+    else if (nova_entrada->freqTotal > node->entrada.freqTotal) node->direita = inserir_na_avl_freq(node->direita, nova_entrada); // >= para inserir duplicados
     else return node;
 
     node->altura = 1 + max(height(node->esquerda), height(node->direita));

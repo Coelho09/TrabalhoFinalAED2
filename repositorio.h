@@ -10,6 +10,8 @@ typedef struct musicaDados {
     char nomeMus[MAX_MUSICA_NOME];
     char compo[MAX_COMPOSITOR_NOME];
     char estrofe[MAX_ESTROFE];
+    int freq_mus;
+    
 } musicaDados;
 
 typedef struct palavra_busca {

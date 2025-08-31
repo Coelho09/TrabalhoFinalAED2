@@ -1,3 +1,5 @@
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,6 +11,9 @@
 #include "avl-tree.h"
 #include "utils.h"
 #include "processa_arquivos.h"
+
+// Define o número de vezes que cada busca será repetida para obter uma medição de tempo precisa.
+#define NUM_REPETICOES_BUSCA 10000
 
 void menu_principal();
 void carregar_arquivos();
@@ -27,11 +32,11 @@ int main() {
         menu_principal();
         if (scanf("%d", &opcao) != 1) {
             printf("Entrada invalida. Por favor, digite um numero.\n");
-            while (getchar() != '\n');
+            while (getchar() != '\n'); // Limpa o buffer de entrada
             opcao = -1;
             continue;
         }
-        getchar();
+        getchar(); // Consome o '\n' deixado pelo scanf
 
         switch (opcao) {
             case 1: carregar_arquivos(); break;
@@ -59,10 +64,13 @@ void menu_principal() {
 }
 
 void carregar_arquivos() {
+    
     liberar_vetor(&repo_vetor);
     liberar_ab(raiz_ab);
     liberar_avl(raiz_avl);
     liberar_avl(raiz_avl_frequencia);
+    
+    
     inicializa_vetor(&repo_vetor);
     raiz_ab = NULL;
     raiz_avl = NULL;
@@ -75,23 +83,53 @@ void carregar_arquivos() {
     int tamanho = 0;
     palavra_busca* lista = processa_arquivo(nome_arquivo, &tamanho);
 
-    
-
     if (lista == NULL) {
         printf("Erro ao processar o arquivo!\n");
         return;
     }
-    printf("Arquivo carregado com sucesso! Inserindo nas estruturas...\n");
+    printf("Arquivo carregado com sucesso! Processando %d palavras...\n", tamanho);
 
+    clock_t inicio, fim;
+    double tempo;
+
+    
+    inicio = clock();
     for (int i = 0; i < tamanho; i++) {
         inserir_no_vetor(&repo_vetor, &lista[i]);
-        raiz_ab = inserir_na_ab(raiz_ab, &lista[i]);
-        raiz_avl = inserir_na_avl(raiz_avl, &lista[i]);
-        raiz_avl_frequencia = inserir_na_avl_freq(raiz_avl_frequencia, &lista[i]);
     }
     shell_sort_vetor(&repo_vetor, repo_vetor.tamanho);
+    fim = clock();
+    tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
+    printf("Tempo de insercao no VETOR + SORT: %.14f s\n", tempo);
 
-    printf("Estruturas carregadas! %d palavras unicas encontradas.\n", tamanho);
+
+    inicio = clock();
+    for (int i = 0; i < tamanho; i++) {
+        raiz_ab = inserir_na_ab(raiz_ab, &lista[i]);
+    }
+    fim = clock();
+    tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
+    printf("Tempo de insercao na ARVORE BINARIA: %.14f s\n", tempo);
+
+    
+    inicio = clock();
+    for (int i = 0; i < tamanho; i++) {
+        raiz_avl = inserir_na_avl(raiz_avl, &lista[i]);
+    }
+    fim = clock();
+    tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
+    printf("Tempo de insercao na ARVORE AVL (palavra): %.14f s\n", tempo);
+
+    
+    inicio = clock();
+    for (int i = 0; i < tamanho; i++) {
+        raiz_avl_frequencia = inserir_na_avl_freq(raiz_avl_frequencia, &lista[i]);
+    }
+    fim = clock();
+    tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
+    printf("Tempo de insercao na ARVORE AVL (frequencia): %.14f s\n", tempo);
+
+    printf("Estruturas carregadas! %d palavras unicas encontradas.\n", repo_vetor.tamanho);
     free(lista);
 }
 
@@ -106,29 +144,71 @@ void buscar_palavra() {
     para_minusculo(palavra);
 
     clock_t inicio, fim;
-    double tempo;
-    palavra_busca* resultado;
+    double tempo_total, tempo_medio;
+    palavra_busca* resultado = NULL;
 
+    // --- VETOR ---
     inicio = clock();
-    resultado = buscar_no_vetor(&repo_vetor, palavra);
+    for(int i = 0; i < NUM_REPETICOES_BUSCA; ++i) {
+        resultado = buscar_no_vetor(&repo_vetor, palavra);
+    }
     fim = clock();
-    tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
-    if (resultado) printf("[VETOR] Palavra encontrada: %s | Freq: %d | Tempo: %.8f s\n", resultado->palavra, resultado->freqTotal, tempo);
-    else printf("[VETOR] Palavra nao encontrada (Tempo: %.8f s)\n", tempo);
+    tempo_total = (double)(fim - inicio) / CLOCKS_PER_SEC;
+    tempo_medio = tempo_total / NUM_REPETICOES_BUSCA;
+    
+    if (resultado) {
+        printf("\n--- VETOR ---\n");
+        printf("Palavra: %s\n", resultado->palavra);
+        printf("Frequencia Total: %d\n", resultado->freqTotal);
+        printf("Nome da Musica: %s\n", resultado->mData.nomeMus);
+        printf("Compositor: %s\n", resultado->mData.compo);
+        printf("Estrofe: %.100s...\n", resultado->mData.estrofe);
+        printf("Tempo medio de busca: %.14f s (em %d repeticoes)\n", tempo_medio, NUM_REPETICOES_BUSCA);
+    } else {
+        printf("[VETOR] Palavra nao encontrada (Tempo medio: %.14f s)\n", tempo_medio);
+    }
 
+    // --- ÁRVORE BINÁRIA ---
     inicio = clock();
-    resultado = buscar_na_ab(raiz_ab, palavra);
+    for(int i = 0; i < NUM_REPETICOES_BUSCA; ++i) {
+        resultado = buscar_na_ab(raiz_ab, palavra);
+    }
     fim = clock();
-    tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
-    if (resultado) printf("[AB]    Palavra encontrada: %s | Freq: %d | Tempo: %.8f s\n", resultado->palavra, resultado->freqTotal, tempo);
-    else printf("[AB]    Palavra nao encontrada (Tempo: %.8f s)\n", tempo);
+    tempo_total = (double)(fim - inicio) / CLOCKS_PER_SEC;
+    tempo_medio = tempo_total / NUM_REPETICOES_BUSCA;
 
+    if (resultado) {
+        printf("\n--- ARVORE BINARIA ---\n");
+        printf("Palavra: %s\n", resultado->palavra);
+        printf("Frequencia Total: %d\n", resultado->freqTotal);
+        printf("Nome da Musica: %s\n", resultado->mData.nomeMus);
+        printf("Compositor: %s\n", resultado->mData.compo);
+        printf("Estrofe: %.100s...\n", resultado->mData.estrofe);
+        printf("Tempo medio de busca: %.14f s (em %d repeticoes)\n", tempo_medio, NUM_REPETICOES_BUSCA);
+    } else {
+        printf("[AB] Palavra nao encontrada (Tempo medio: %.14f s)\n", tempo_medio);
+    }
+
+    // --- ÁRVORE AVL ---
     inicio = clock();
-    resultado = buscar_na_avl(raiz_avl, palavra);
+    for(int i = 0; i < NUM_REPETICOES_BUSCA; ++i) {
+        resultado = buscar_na_avl(raiz_avl, palavra);
+    }
     fim = clock();
-    tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
-    if (resultado) printf("[AVL]   Palavra encontrada: %s | Freq: %d | Tempo: %.8f s\n", resultado->palavra, resultado->freqTotal, tempo);
-    else printf("[AVL]   Palavra nao encontrada (Tempo: %.8f s)\n", tempo);
+    tempo_total = (double)(fim - inicio) / CLOCKS_PER_SEC;
+    tempo_medio = tempo_total / NUM_REPETICOES_BUSCA;
+
+    if (resultado) {
+        printf("\n--- ARVORE AVL ---\n");
+        printf("Palavra: %s\n", resultado->palavra);
+        printf("Frequencia Total: %d\n", resultado->freqTotal);
+        printf("Nome da Musica: %s\n", resultado->mData.nomeMus);
+        printf("Compositor: %s\n", resultado->mData.compo);
+        printf("Estrofe: %.100s...\n", resultado->mData.estrofe);
+        printf("Tempo medio de busca: %.14f s (em %d repeticoes)\n", tempo_medio, NUM_REPETICOES_BUSCA);
+    } else {
+        printf("[AVL] Palavra nao encontrada (Tempo medio: %.14f s)\n", tempo_medio);
+    }
 }
 
 void buscar_por_frequencia() {
@@ -143,13 +223,29 @@ void buscar_por_frequencia() {
         while (getchar() != '\n');
         return;
     }
-    clock_t inicio = clock();
-    palavra_busca* resultado = buscar_na_avl_por_frequencia(raiz_avl_frequencia, freq);
-    clock_t fim = clock();
-    double tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
     
-  if (resultado) 
-        printf("Palavra com frequencia %d encontrada: %s | Nome da musica: %s | Nome do compositor: %s | Estrofe: %s | Tempo: %.10f s\n", 
-        freq, resultado->palavra, resultado->mData.nomeMus, resultado->mData.compo, resultado->mData.estrofe, resultado->freqTotal, tempo);
-    else printf("Nenhuma palavra encontrada com frequencia %d (Tempo: %.8f s)\n", freq, tempo);
+    clock_t inicio, fim;
+    double tempo_total, tempo_medio;
+    palavra_busca* resultado = NULL;
+    
+    inicio = clock();
+    for(int i = 0; i < NUM_REPETICOES_BUSCA; ++i) {
+        resultado = buscar_na_avl_por_frequencia(raiz_avl_frequencia, freq);
+    }
+    fim = clock();
+    tempo_total = (double)(fim - inicio) / CLOCKS_PER_SEC;
+    tempo_medio = tempo_total / NUM_REPETICOES_BUSCA;
+    
+    if (resultado) {
+        printf("\n--- RESULTADO DA BUSCA POR FREQUENCIA ---\n");
+        printf("Frequencia buscada: %d\n", freq);
+        printf("Palavra encontrada: %s\n", resultado->palavra);
+        printf("Frequencia Total: %d\n", resultado->freqTotal);
+        printf("Nome da Musica: %s\n", resultado->mData.nomeMus);
+        printf("Compositor: %s\n", resultado->mData.compo);
+        printf("Estrofe: %.100s...\n", resultado->mData.estrofe);
+        printf("Tempo medio de busca: %.14f s (em %d repeticoes)\n", tempo_medio, NUM_REPETICOES_BUSCA);
+    } else {
+        printf("Nenhuma palavra encontrada com frequencia %d (Tempo medio: %.14f s)\n", freq, tempo_medio);
+    }
 }

@@ -91,3 +91,9 @@ palavra_busca* processa_arquivo(const char* nome_arquivo, int* tamanho) {
     fclose(arquivo);
     return lista_temp;
 }
+
+
+
+
+
+
